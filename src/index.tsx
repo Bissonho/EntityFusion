@@ -1,12 +1,10 @@
-console.log('Hello world!');
-
+// Define the Component interface
 interface Component {
-    // Defina os campos necessários para cada componente
+    // Define the necessary fields for each component
   }
-
-
-// Definição das entidades
-class Entity {
+  
+  // Define the Entity class
+  class Entity {
     id: number;
     components: Component[];
   
@@ -32,8 +30,8 @@ class Entity {
     }
   }
   
-  // Definição dos componentes
-  class PositionComponent {
+  // Define the components
+  class PositionComponent implements Component {
     x: number;
     y: number;
   
@@ -43,7 +41,7 @@ class Entity {
     }
   }
   
-  class RenderComponent {
+  class RenderComponent implements Component {
     sprite: string;
   
     constructor(sprite: string) {
@@ -51,44 +49,77 @@ class Entity {
     }
   }
   
-  // Definição dos sistemas
+  class RotationComponent implements Component {
+    rotation: number;
+  
+    constructor(rotation: number) {
+      this.rotation = rotation;
+    }
+  }
+  
+  // Define the systems
   class RenderSystem {
     entities: Entity[];
+    frameRate: number;
+    intervalId: number;
   
-    constructor(entities: Entity[]) {
+    constructor(entities: Entity[], frameRate: number) {
       this.entities = entities;
+      this.frameRate = frameRate;
+      this.intervalId = 0;
+    }
+  
+    start() {
+      const intervalTime = 1000 / this.frameRate;
+      this.intervalId = setInterval(() => this.update(), intervalTime);
+    }
+  
+    stop() {
+      clearInterval(this.intervalId);
     }
   
     update() {
       for (const entity of this.entities) {
         const positionComponent = entity.getComponent('PositionComponent') as PositionComponent;
         const renderComponent = entity.getComponent('RenderComponent') as RenderComponent;
+        const rotationComponent = entity.getComponent('RotationComponent') as RotationComponent;
   
-        if (positionComponent && renderComponent) {
+        if (positionComponent && renderComponent && rotationComponent) {
+          const { x, y } = positionComponent;
+          const { sprite } = renderComponent;
+          const { rotation } = rotationComponent;
+  
           console.log(
-            `Renderizando entidade ${entity.id} na posição (${positionComponent.x}, ${positionComponent.y}) com sprite ${renderComponent.sprite}`
+            `Rendering entity ${entity.id} at position (${x}, ${y}) with sprite ${sprite} and rotation ${rotation}`
           );
         }
       }
     }
   }
   
-  // Uso da engine
+  // Usage of the engine
   const entities: Entity[] = [];
   
-  // Criar entidades
+  // Create entities
   const entity1 = new Entity(1);
   entity1.addComponent(new PositionComponent(10, 20));
   entity1.addComponent(new RenderComponent('sprite1.png'));
+  entity1.addComponent(new RotationComponent(0));
   entities.push(entity1);
   
   const entity2 = new Entity(2);
   entity2.addComponent(new PositionComponent(30, 40));
   entity2.addComponent(new RenderComponent('sprite2.png'));
+  entity2.addComponent(new RotationComponent(45));
   entities.push(entity2);
   
-  // Criar sistema
-  const renderSystem = new RenderSystem(entities);
+  // Create the render system
+  const renderSystem = new RenderSystem(entities, 60);
   
-  // Atualizar o sistema
-  renderSystem.update();
+  // Start the render system
+  renderSystem.start();
+  
+  // Stop the render system after 5 seconds
+  setTimeout(() => {
+    renderSystem.stop();
+  }, 5000);
