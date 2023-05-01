@@ -10,11 +10,15 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/three": "^0.151.0",
     "nodemon": "^2.0.22",
     "rimraf": "^5.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   },
   "build": "rimraf ./build && tsc",
-  "start:dev": "npx nodemon"  
+  "start:dev": "npx nodemon",
+  "dependencies": {
+    "three": "^0.152.2"
+  }
 }
